@@ -44,18 +44,18 @@ docker_depencies:
 docker-gpg-key:
   cmd.run:
     - name: |
-      curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && \
-      chmod a+r /etc/apt/keyrings/docker.asc
+        curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && \
+        chmod a+r /etc/apt/keyrings/docker.asc
     - unless: test -f /etc/apt/keyrings/docker.asc
 
 /etc/apt/sources.list.d/docker.sources:
   file.managed:
     - contents: |
-      Types: deb
-      URIs: https://download.docker.com/linux/debian
-      Suites: {{ grains['oscodename'] }} # Salt automatically detects the OS name using grains, so we don't need to hard-code "bookworm"
-      Components: stable
-      Signed-By: /etc/apt/keyrings/docker.asc
+        Types: deb
+        URIs: https://download.docker.com/linux/debian
+        Suites: {{ grains['oscodename'] }} # Salt automatically detects the OS name using grains, so we don't need to hard-code "bookworm"
+        Components: stable
+        Signed-By: /etc/apt/keyrings/docker.asc
 
 docker_apt-update:
   cmd.run:
