@@ -18,7 +18,7 @@ Inside of virtualmachine - vagrant@master
 8.  `sudo apt install docker-ce=$VERSION_STRING docker-ce-cli=$VERSION_STRING containerd.io docker-buildx-plugin docker-compose-plugin`
 9.  `sudo systemctl status docker`  
 
-![kuva1](./Pictures/kuva1.png)  
+![kuva1](./img/kuva1.png)  
 And we have Docker running!  
 
 10. Next we can try `sudo docker run hello-world` that downloads the test image and runs it in a container. You should get message that tells your installation has worked correctly.
@@ -85,11 +85,11 @@ Now we can try how it works on our minion-virtualmachine by running command `sud
 
 Looks like it worked!  
 
-![kuva2](./Pictures/kuva2.png)  
+![kuva2](./img/kuva2.png)  
 
 Lets log in to minion and see if Docker runs there. Lets try command `sudo docker run hello-world` and it gives answer. It seems that our installation is working as planned.  
 
-![kuva3](./Pictures/kuva3.png)  
+![kuva3](./img/kuva3.png)  
 
 
 
