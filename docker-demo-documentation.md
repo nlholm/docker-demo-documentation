@@ -83,6 +83,16 @@ docker_service:
 
 Now we can try how it works on our minion-virtualmachine by running command `sudo salt 'minion1' state.apply docker` from master.  
 
+Looks like it worked!  
+
+![kuva2](./Pictures/kuva2.png)  
+
+Lets log in to minion and see if Docker runs there. Lets try command `sudo docker run hello-world` and it gives answer. It seems that our installation is working as planned.  
+
+![kuva3](./Pictures/kuva3.png)  
+
+
+
 
 
 
