@@ -53,7 +53,7 @@ docker-gpg-key:
     - contents: |
         Types: deb
         URIs: https://download.docker.com/linux/debian
-        Suites: {{ grains['oscodename'] }} # Salt automatically detects the OS name using grains, so we don't need to hard-code "bookworm"
+        Suites: {{ grains['oscodename'] }}
         Components: stable
         Signed-By: /etc/apt/keyrings/docker.asc
 
