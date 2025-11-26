@@ -180,7 +180,7 @@ nginx_web_up:
     - unless: "docker ps --format '{{.Names}}' | grep -q nginx-web1"
 ```
 
-![kuva7(./img/kuva7.png)  
+![kuva7](./img/kuva7.png)  
 
 And it works! Now we can copy this module to our repository.  
 
@@ -188,11 +188,11 @@ And it works! Now we can copy this module to our repository.
 
 Lets try to run our modules to minion virtualmachine. Lets run command `sudo salt 'minion1' state.apply` in our master machine.  
 
-![kuva8(./img/kuva8.png)  
+![kuva8](./img/kuva8.png)  
 
 Seems to be working. I run the command twice and got succeed 11 and 0 changed, so it seems to be idempotent. Time to log in to our minion and see if we have webpage at localhost:8080.  
 
-![kuva9(./img/kuva9.png)  
+![kuva9](./img/kuva9.png)  
 
 Works well!  
 
@@ -229,7 +229,7 @@ http {
 
                 location / {
 
-                        proxy_pass http://container_cluster
+                        proxy_pass http://container_cluster;
                         proxy_set_header Host $host;
                         proxy_set_header X-Real-IP $remote_addr;
 
@@ -246,6 +246,16 @@ Here we have setup:
 2. Upstream acts as load balancer. Default is round robin, so it will pick one server at time to send the requests.
 3. Location as reverse proxy. It will get the request from client and forwards it to our servers.
 4. Nginx will listen port 80 and serve localhost-address.
+
+## Lets test it!
+
+Firstly we want to shutdown our containers with command `sudo docker compose down` and back to up with `sudo docker compose up -d`. Also we just made changes to /etc/conf-file so lets restart the daemon with `sudo systemctl restart nginx`.  
+
+![kuva10](./img/kuva10.png)  
+
+Localhost answers with desired webpage in every port. `curl localhost` also delivers same page, so reverse proxy seems to be working.  
+
+LOAD BALANCING TESTI KESKEN
 
 
 
