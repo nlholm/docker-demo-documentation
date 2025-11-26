@@ -71,9 +71,6 @@ docker_packages:
       - containerd.io
       - docker-buildx-plugin
       - docker-compose-plugin
-    - version:
-      - docker-ce: 29.0.4-1~debian.12~bookworm
-      - docker-ce-cli: 29.0.4-1~debian.12~bookworm
 
 docker_service:
   service.running:
@@ -92,6 +89,42 @@ Lets log in to minion and see if Docker runs there. Lets try command `sudo docke
 ![kuva3](./img/kuva3.png)  
 
 
+# Serving static website in Nginx-container
+
+Let's start with docker installed in our Salt-Master. We have already automated installation of Docker so we can run salt command locally. `sudo salt-call --local state.apply docker` and now we have installed Docker in our master.  
+
+Now we make folder to our home directory for docker-compose -file so we can set up multiple containers and we also include our index.html, styles.css and image in that directory. Run command `mkdir -p /home/vagrant/nginx-demo/site/images`.  
+
+Let's create docker-compose.yml -file that creates three nginx web-services.  
+
+```
+services:
+  web1:
+    image: nginx
+    container_name: nginx-web1
+    ports:
+      - "8080:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+
+  web2:
+    image: nginx
+    container_name: nginx-web2
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+
+  web3:
+    image: nginx
+    container_name: nginx-web3
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+```
+
+Then we want to add our depencies to the webpage.  
+
+![kuva4](./img/kuva4.png)  
+
+Now we have compelated our nginx-demo directory and its time to try it. Run this command in nginx-demo directory: `docker compose up -d`.  
 
 
 
