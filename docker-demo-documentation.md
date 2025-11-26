@@ -138,7 +138,59 @@ I started automation by creating new directory nginx-web under /srv/salt/. First
 
 ![kuva6](./img/kuva6.png)  
 
+Next I created init.sls -file inside nginx-web -module.  
 
+```
+/home/vagrant/nginx-demo:
+  file.directory:
+    - user: vagrant
+    - group: vagrant
+    - mode: 755
+
+/home/vagrant/nginx-demo/docker-compose.yml:
+  file.managed:
+    - source: salt://nginx-web/docker-compose.yml
+    - user: vagrant
+    - group: vagrant
+    - mode: 644
+    - require:
+      - file: /home/vagrant/nginx-demo
+
+/home/vagrant/nginx-demo/site:
+  file.recurse:
+    - source: salt://nginx-web/site
+    - user: vagrant
+    - group: vagrant
+    - file_mode: 644
+    - dir_mode: 755
+    - require:
+      - file: /home/vagrant/nginx-demo
+
+nginx_web_up:
+  cmd.run:
+    - name: docker compose up -d
+    - cwd: /home/vagrant/nginx-demo
+    - require:
+      - file: /home/vagrant/nginx-demo/docker-compose.yml
+      - file: /home/vagrant/nginx-demo/site
+    - unless: "docker ps --format '{{.Names}}' | grep -q nginx-web1"
+```
+
+![kuva7(./img/kuva7.png)  
+
+And it works! Now we can copy this module to our repository.  
+
+## Testing
+
+Lets try to run our modules to minion virtualmachine. Lets run command `sudo salt 'minion1' state.apply` in our master machine.  
+
+![kuva8(./img/kuva8.png)  
+
+Seems to be working. I run the command twice and got succeed 11 and 0 changed, so it seems to be idempotent. Time to log in to our minion and see if we have webpage at localhost:8080.  
+
+![kuva9(./img/kuva9.png)  
+
+Works well!  
 
 
 
