@@ -124,7 +124,20 @@ Then we want to add our depencies to the webpage.
 
 ![kuva4](./img/kuva4.png)  
 
-Now we have compelated our nginx-demo directory and its time to try it. Run this command in nginx-demo directory: `docker compose up -d`.  
+Now we have compelated our nginx-demo directory and its time to try it. Run this command in nginx-demo directory: `sudo docker compose up -d`.  
+
+After that we can run `sudo docker ps` to see what containers are running and `curl localhost:8080` to see if our webpage is up and running.  
+
+![kuva5](./img/kuva5.png)  
+
+As we can see we have three Nginx containers up and running and our webpage responds correctly.  
+
+## Automating nginx with Salt
+
+I started automation by creating new directory nginx-web under /srv/salt/. Firstly I copied all the files that we used before to our module.  
+
+![kuva6](./img/kuva6.png)  
+
 
 
 
