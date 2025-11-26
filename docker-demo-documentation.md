@@ -103,19 +103,23 @@ services:
     image: nginx
     container_name: nginx-web1
     ports:
-      - "8080:80"
+      - "8081:80"
     volumes:
       - ./site:/usr/share/nginx/html:ro
 
   web2:
     image: nginx
     container_name: nginx-web2
+    ports:
+      - "8082:80"
     volumes:
       - ./site:/usr/share/nginx/html:ro
 
   web3:
     image: nginx
     container_name: nginx-web3
+    ports:
+      - "8083:80"
     volumes:
       - ./site:/usr/share/nginx/html:ro
 ```
@@ -192,12 +196,67 @@ Seems to be working. I run the command twice and got succeed 11 and 0 changed, s
 
 Works well!  
 
+# Nginx as proxy and loadbalancer
 
+The idea is to install Nginx as proxy and loadbalancer that servers our three backend web-servers that run in Docker containers.  
+
+Lets start to make this without automation first. Run `sudo apt-get update` `sudo apt-install nginx`. After that we can make new module for salt in /srv/salt/nginx-proxy, so we can save our configuration easily there.   
+
+After installation we want to tweak nginx.conf that is found in /etc/nginx/nginx.conf.
+
+```
+worker_processes 1;
+
+
+events {
+
+}
+
+
+http {
+        include mime.types;
+
+        upstream container_cluster {
+                server 127.0.0.1:8081;
+                server 127.0.0.1:8082;
+                server 127.0.0.1:8083;
+        }
+
+        server {
+
+                listen 80;
+                server_name localhost;
+
+                location / {
+
+                        proxy_pass http://container_cluster
+                        proxy_set_header Host $host;
+                        proxy_set_header X-Real-IP $remote_addr;
+
+                }
+
+        }
+
+}
+
+```
+
+Here we have setup:  
+1. Worker processes to one, so only on http-request per worker
+2. Upstream acts as load balancer. Default is round robin, so it will pick one server at time to send the requests.
+3. Location as reverse proxy. It will get the request from client and forwards it to our servers.
+4. Nginx will listen port 80 and serve localhost-address.
 
 
 
 ## References
 
 Dockerdocs. Install Docker Engine on Debian. URL: https://docs.docker.com/engine/install/debian/#install-using-the-repository. Accessed: 25.11.2025  
+
+Manandhar, G. 2024. How to use Nginx with Docker Compose effectively with examples. URL: https://geshan.com.np/blog/2024/03/nginx-docker-compose/. Accessed: 25.11.2025  
+
+TechWorld with Nana. Full NGINX Tutorial - Demo Project with Node.js, Docker. URL: https://www.youtube.com/watch?v=q8OleYuqntY&t=3980s. Accessed: 25.11.2025  
+
+
 
 
