@@ -256,8 +256,10 @@ Firstly we want to shutdown our containers with command `sudo docker compose dow
 Localhost answers with desired webpage in every port. `curl localhost` also delivers same page, so reverse proxy seems to be working.  
 
 LOAD BALANCING TESTI KESKEN
-
-
+for i in $(seq 1 10); do curl -s http://localhost > /dev/null; done
+sudo docker logs nginx-web1 | grep GET
+sudo docker logs nginx-web2 | grep GET
+sudo docker logs nginx-web3 | grep GET
 
 ## References
 
