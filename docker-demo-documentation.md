@@ -331,7 +331,7 @@ Aloitetaan puhtaalta vagrant koneelta, eli ajetaan host-koneella `vagrant up` (h
 
 Kloonataan projektirepository virtuaalikoneelle komennolla `git clone https://github.com/nlholm/docker-demo.git`.  
 
-Luodaan saltille kansio `sudo cp -r docker-demo/salt/* /srv/salt/`.  
+Luodaan saltille kansio `sudo mkdir -p /srv/salt`.  
 
 Kopioidaan salt moduulit tuonne äsken luotuun /srv/salt/ `sudo cp -r docker-demo/salt/* /srv/salt/`  
 
