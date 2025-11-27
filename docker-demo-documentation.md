@@ -106,6 +106,7 @@ services:
       - "8081:80"
     volumes:
       - ./site:/usr/share/nginx/html:ro
+    restart: unless-stopped
 
   web2:
     image: nginx
@@ -114,6 +115,7 @@ services:
       - "8082:80"
     volumes:
       - ./site:/usr/share/nginx/html:ro
+    restart: unless-stopped
 
   web3:
     image: nginx
@@ -122,6 +124,7 @@ services:
       - "8083:80"
     volumes:
       - ./site:/usr/share/nginx/html:ro
+    restart: unless-stopped
 ```
 
 Then we want to add our depencies to the webpage.  
@@ -255,11 +258,156 @@ Firstly we want to shutdown our containers with command `sudo docker compose dow
 
 Localhost answers with desired webpage in every port. `curl localhost` also delivers same page, so reverse proxy seems to be working.  
 
-LOAD BALANCING TESTI KESKEN
-for i in $(seq 1 10); do curl -s http://localhost > /dev/null; done
-sudo docker logs nginx-web1 | grep GET
-sudo docker logs nginx-web2 | grep GET
-sudo docker logs nginx-web3 | grep GET
+Seuraavaksi testaan load balancen toimintaa:  
+
+Ajetaan 30 HTTP-pyyntöä Nginxlle:  
+
+```
+for i in {1..30}; do
+  curl -s http://localhost/ > /dev/null
+done
+```
+
+Tämän jälkeen tarkistetaan konttien logeista, montako GET pyyntöä ne käsitteli. Ajetaan komennot:  
+
+```
+sudo docker logs nginx-web1 | grep "GET / " | wc -l
+sudo docker logs nginx-web2 | grep "GET / " | wc -l
+sudo docker logs nginx-web3 | grep "GET / " | wc -l
+```
+
+![kuva11](./img/kuva11.png)  
+
+Ja kuten voidaan kuvasta huomata, niin jokainen kontti on saanut 10 pyyntöä, eli load balancing toimii.  
+
+## Automatisoidaan proxy ja loadbalancer saltilla
+
+Aloitetaan tekemällä kansio nginx-proxy polkuun -> srv/salt/. Eli srv/salt/nginx-proxy.  
+
+Luodaan sinne init.sls ja annetaan sisällöksi:
+
+```
+nginx_pkg:
+  pkg.installed:
+    - name: nginx
+
+/etc/nginx/nginx.conf:
+  file.managed:
+    - source: salt://nginx-proxy/nginx.conf
+    - user: root
+    - group: root
+    - mode: 644
+
+nginx_service:
+  service.running:
+    - name: nginx
+    - enable: True
+    - watch:
+      - file: nginx_pkg:
+  pkg.installed:
+    - name: nginx
+
+/etc/nginx/nginx.conf:
+  file.managed:
+    - source: salt://nginx-proxy/nginx.conf
+    - user: root
+    - group: root
+    - mode: 644
+
+nginx_service:
+  service.running:
+    - name: nginx
+    - enable: True
+    - watch:
+      - file: /etc/nginx/nginx.conf
+```
+Kopioidaan nginx.conf tiedosto projektikansiosta tuonne saltin moduuliin ja lisätään ngninx-proxy top.sls tiedostoon.  
+
+Kokeillaan ajaa minionille komennolla `sudo salt 'minion1' state.apply` ja hyvin näyttää toimivan edelleen! Seuraavaksi pushataan tiedostot etärepoon talteen ja tuhotaan vagrant koneet.  
+
+# koko projektin testaus
+
+Aloitetaan puhtaalta vagrant koneelta, eli ajetaan host-koneella `vagrant up` (huom täytyy olla samassa kansiossa missä vagrant-file on). Kirjaudutaan Masterille komennolla `vagrant ssh master`.  
+
+Kloonataan projektirepository virtuaalikoneelle komennolla `git clone https://github.com/nlholm/docker-demo.git`.  
+
+Luodaan saltille kansio `sudo cp -r docker-demo/salt/* /srv/salt/`.  
+
+Kopioidaan salt moduulit tuonne äsken luotuun /srv/salt/ `sudo cp -r docker-demo/salt/* /srv/salt/`  
+
+Ajetaan masterilla `sudo salt 'minion1' state.apply`  
+
+Kaikki hyvin tähän asti! 14 statea ajettu ja 11 muutosta.  
+
+![kuva12](./img/kuva12.png)  
+
+Seuraavaksi kirjaudutaan ulos masterilta ja mennään katsomaan minion1 koneelta mitä on käynyt.  
+
+```
+exit
+vagrant ssh minion1
+```
+
+Ajetaan testejä minionilla  
+
+### Palvelut ja kontit
+
+`sudo systemctl status docker`  
+`sudo systemctl status nginx`  
+`sudo docker ps`  
+
+![kuva13](./img/kuva13.png)  
+
+Palvelut docker ja nginx käynnissä.  
+
+![kuva14](./img/kuva14.png)  
+
+Kaikki kolme Nginx-konttia ajavat samaa web-palvelinta ja kuuntelevat konttien sisällä porttia 80.
+Dockerissa konttien sisäiset portit voivat olla samat, mutta minionin (Docker-hostin) tasolla ne täytyy julkaista eri host-portteihin, jotta portit eivät mene päällekkäin.
+
+Tästä syystä kontit näkyvät minion-koneella seuraavasti:
+
+nginx-web1 → 8081 → 80/tcp
+
+nginx-web2 → 8082 → 80/tcp
+
+nginx-web3 → 8083 → 80/tcp
+
+Nginx-proxy toimii reverse proxyna ja kuormanjakajana. Se ei ota yhteyttä konttien sisäisiin portteihin, vaan ohjaa liikenteen näihin host-portteihin (8081–8083), joita Docker edelleen välittää konttien porttiin 80.
+
+Näin yksi proxypalvelin (portti 80) voi jakaa liikennettä kolmelle taustalla pyörivälle Nginx-kontille.
+
+### Nettisivu
+
+`curl localhost`  
+
+![kuva15](./img/kuva15.png)  
+
+Curl komento toimi localhostilla, eli proxy toimii.
+
+(tämä mahdollista vagrant tiedoston ansiosta) Testataan host koneen nettiselaimella näkyykö nettisivu oikein. Eli kirjoitetaan selaimen hakukenttään: http://localhost:8080  
+
+![kuva16](./img/kuva16.png)  
+
+Siellä näkyy nginx:n tarjoilema nettisivu kontin sisältä!  
+
+### Kuormanjako
+
+Tehdään kolmekymmentä HTTP-pyyntöä Nginx-proxylle:  
+```
+for i in {1..30}; do
+  curl -s http://localhost > /dev/null
+done
+```
+
+Katsotaan pyyntöjen määrät `echo "web1: $(sudo docker logs nginx-<name of the container> | grep 'GET / ' | wc -l) pyyntöä"`  
+![kuva17](./img/kuva17.png)  
+![kuva18](./img/kuva18.png)  
+![kuva19](./img/kuva19.png)  
+
+Kuvista voidaan huomata että kuorma jakautuu tasaisesti kaikille weppiservereille tasaisesti.  
+
+
 
 ## References
 
