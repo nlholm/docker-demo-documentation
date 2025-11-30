@@ -1,4 +1,4 @@
-# Docker Demo – Project Documentation
+# Docker Demo Documentation
 
 This repository hosts the documentation and final report for :whale: **[Docker Demo](https://github.com/nlholm/docker-demo)**, a small-scale Infrastructure as Code (IaC) project built for a Configuration Management Systems course.
 
