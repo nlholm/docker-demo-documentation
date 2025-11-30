@@ -2,7 +2,7 @@ update: 30.11.2025
 
 # Docker Demo Documentation
 
-This document reports the steps we, [punnalathomas](https://github.com/punnalathomas) and [nlholm](https://github.com/nlholm), took while building **[Docker Demo](https://github.com/nlholm/docker-demo)**, a small-scale Infrastructure as Code (IaC) project built as the final task for a [Configuration Management Systems course](https://terokarvinen.com/palvelinten-hallinta/) run by Tero Karvinen.
+This document reports the steps we, [punnalathomas](https://github.com/punnalathomas) and [nlholm](https://github.com/nlholm), took while building :whale: **[Docker Demo](https://github.com/nlholm/docker-demo)**, a small-scale Infrastructure as Code (IaC) project built as the final task for a [Configuration Management Systems course](https://terokarvinen.com/palvelinten-hallinta/) run by Tero Karvinen.
 
 We began by installing Docker and Nginx web server manually in a Vagrant environment, then automated the setup with Salt. Next, we installed Nginx as a load balancer — again, starting manually before moving to automation. Finally, we showcased how the fully automated load balancer distributed traffic to three web servers running inside Docker containers.
 
@@ -14,11 +14,11 @@ We each worked approximately 20 hours on the project during the week of 24 - 30 
 
 First, we installed Docker manually on a clean Debian Bookworm64 virtual machine running in Vagrant. The environment came pre-installed with wget, curl, gnupg2, micro, and the Salt Master. We also added bash-completion to the VM. 
 
-We also set up a custom Vagrantfile, which we iteratively updated to support automation throughout the project as we advanced. 
+We also set up a custom Vagrantfile and dependent script files, which we iteratively updated to support automation throughout the project as we advanced. 
 
-We logged in to our virtualmachine through the Windows command line prompt with the command `vagrant ssh master`.  
+We logged in to our virtual machine through the Windows command line prompt with the command `vagrant ssh master`.  
 
-Whilst inside the virtualmachine - vagrant@master - we ran:
+Whilst inside the virtual machine - vagrant@master - we ran:
 
 1. `sudo apt-get update`
 2.  `sudo apt install ca-certificates curl`
@@ -34,11 +34,11 @@ Whilst inside the virtualmachine - vagrant@master - we ran:
 
 And we had Docker running!  
 
-We tried `sudo docker run hello-world`. The command downloads a test image, runs it in a container and sends a message that says that your installation has worked correctly (as explained by [Dockerdocs](https://docs.docker.com/engine/install/debian/#install-using-the-repository).
+We tried `sudo docker run hello-world`. The command downloads a test image, runs it in a container and sends a message that says that your installation has worked correctly (as explained by [Dockerdocs](https://docs.docker.com/engine/install/debian/#install-using-the-repository)).
 
 ## Automating Docker with Salt
 
-We started automating Docker installation with Salt by creating a directory with path: /srv/salt/docker/ by using command `sudo mkdir -p /srv/salt/docker` and by creating a init.sls file inside of the directory (docker module).  
+We started automating Docker installation with Salt by creating a directory with path:/srv/salt/docker/ by giving the command `sudo mkdir -p /srv/salt/docker`. We also created a init.sls file inside of the directory (docker module).  
 
 Version 1:
 
@@ -91,21 +91,21 @@ docker_service:
     - enable: True
 ```
 
-We tried running the module on our minion virtual machine by giving the command `sudo salt 'minion1' state.apply docker` from the master.  
+We tried running the module in our minion virtual machine by giving the command `sudo salt 'minion1' state.apply docker` from the master.  
 
 ![kuva2](./img/kuva2.png) 
 
 Looks like it worked!  
 
-We logged in to the minion to see if Docker runs there. 
+We logged in to the minion to see if Docker ran there. 
 
 ![kuva3](./img/kuva3.png)  
 
-We tried the command `sudo docker run hello-world` and it gave an answer. It seems that our installation is working as planned.  
+We tried the command `sudo docker run hello-world` and it gave an answer. Our installation was working as planned.  
 
 # Serving Static Website in an Nginx Container
 
-We started the following phase of our project by installing Docker into our master. We had already automated the installation of Docker so we could run the salt command locally. `sudo salt-call --local state.apply docker` and now we had Docker in our master.  
+We started the following phase of our project by installing Docker in our master. We had already automated the installation of Docker so we could run the salt command locally. `sudo salt-call --local state.apply docker` and now we had Docker in our master.  
 
 Next we created a folder in our home directory for the docker compose file so we could set up multiple containers. We also included our index.html, styles.css and images subfolder in that directory. We ran the command `mkdir -p /home/vagrant/nginx-demo/site/images` (note -p for the full path).  
 
@@ -145,7 +145,7 @@ services:
 
 We added our depencies to the webpage.  
 
-Now we had completed our nginx-demo directory and it was time to try it. We ran this command in the nginx-demo directory: `sudo docker compose up -d`.  
+Now we had completed our nginx-demo directory and it was time to test it. We ran this command in the nginx-demo directory: `sudo docker compose up -d`.  
 
 After that we ran the command `sudo docker ps` to see which containers were running and the command `curl localhost:8080` to see if our webpage was up and running.  
 
@@ -199,11 +199,11 @@ nginx_web_up:
 
 ![kuva7](./img/kuva7.png)  
 
-`sudo salt-call --local state.apply nginx-web` and it the automated version of the Nginx web service was running on the master!  
+`sudo salt-call --local state.apply nginx-web` and the automated version of the Nginx web service was running on the master!  
 
 ## Testing
 
-After adding a top.sls file into our /srv/salt/ path, we tried to run our two modules - docker and nginx-web - as Salt states in the minion virtual machine. We ran the command `sudo salt 'minion1' state.apply` in our master machine.  
+After adding a top.sls file into our /srv/salt/ path, we tried to run our two modules - docker and nginx-web - as Salt states in the minion. We ran the command `sudo salt 'minion1' state.apply` in our master.  
 
 ![kuva8](./img/kuva8.png)  
 
@@ -219,7 +219,7 @@ In the final stage of our project, we further utilized Nginx and installed it as
 
 Once again, we started the installation without automation first. We ran  `sudo apt-get update` , `sudo apt-install nginx` on the master. 
 
-After installation we worked on the nginx.conf that is available at /etc/nginx/nginx.conf.
+After installation we worked on the nginx.conf that was available at /etc/nginx/nginx.conf.
 
 ```
 worker_processes 1;
@@ -258,9 +258,9 @@ http {
 
 ```
 
-We put in place the following configurations:  
-1. Worker processes are set to one, so only one http request per worker.
-2. Upstream acts as load balancer. Default is round robin, so it will pick one server at a time to send the requests to.
+We put in place the following configuration:  
+1. Worker processes are set to one, meaning Nginx uses a single operating system process to handle all incoming connections.
+2. Upstream acts as load balancer. Default is round robin, so it will pick one server at a time to send the request to.
 3. Location acts as reverse proxy. It will get the request from the client and forward it to our servers.
 4. Nginx listens in port 80 and serves the localhost address.
 
@@ -320,13 +320,17 @@ nginx_service:
 
 We copied the nginx.conf file into the module directory. We also added the module into the top.sls file, at the root of the /srv/salt path. 
 
-Now we were ready to run the Highstate by running `sudo salt 'minion1' state.apply`. Success: we installed the Nginx load balancer on the minion, to handle traffic into the three Nginx web servers running in Docker containers, also on the minion.
+Now we were ready to test the Highstate by running `sudo salt 'minion1' state.apply`. 
 
-We stored out work into our remote project repository, under the salt folder there. https://github.com/nlholm/docker-demo/tree/main/salt
+![kuva20](./img/kuva20.png)
+
+Success: we installed the Nginx load balancer on the minion, to handle traffic into the three Nginx web servers running in Docker containers, also on the minion (the print screen represents a situation after running the state more than once).
+
+We stored our work into our remote project repository, under the salt folder there. https://github.com/nlholm/docker-demo/tree/main/salt
 
 ![kuva22](./img/kuva22.png) 
 
-State modules as stored on the online repository.
+State modules as stored in the online repository.
 
 ![kuva21](./img/kuva21.png) 
 
@@ -342,7 +346,7 @@ We created a folder for Salt. `sudo mkdir -p /srv/salt`.
 
 We copied the cloned modules into /srv/salt/. `sudo cp -r docker-demo/salt/* /srv/salt/`.
 
-(Of note that the project Vagrantfile was since updated to include a symlink from the hosts's Salt project folder to the masters; there is no need anymore to clone the project repo into the master (only to the host); to create a folder for Salt; or to copy content into it. The process is commented in the Vagrantfile.).
+(Of note that the project Vagrantfile was since updated to include a symlink from the hosts's Salt project folder to the master's; there is no need anymore to clone the project repo into the master (only to the host); to create a folder for Salt; or to copy content into it. The process is commented in the Vagrantfile.).
 
 We ran the Highstate (top file) on the master: `sudo salt 'minion1' state.apply`.   
 
@@ -371,7 +375,7 @@ Both services, Docker and Nginx were active and running.
 
 ![kuva14](./img/kuva14.png)  
 
-All three Nginx containers were running the same web server and listening to port 80 within their container. 
+All three Nginx containers were running the same web server and listening in port 80 within their container. 
 
 In Docker, the internal ports of containers can be identical (e.g., port 80). However, at the Docker host level (the minion), these ports must be differentiated to avoid conflicts.
 
@@ -387,7 +391,7 @@ The Nginx proxy acts as both a reverse proxy and a load balancer. It directs inc
 
 The end result is that a single Nginx proxy (listening on port 80) successfully distributes traffic to three distinct backend Nginx web server containers.
 
-# Website
+## Website
 
 `curl localhost`  
 
@@ -399,7 +403,7 @@ To add a visual effect on our demo, we updated the Vagrantfile to include port f
 
 ![kuva16](./img/kuva16.png)  
 
-http://localhost:8080 on the host machine's browser. We see a website served by Nginx running in a container! NB this is not the final version produced by the demo.
+http://localhost:8080 on the host machine's browser. We see a website served by Nginx running in a container! NB this is not the final version of the website.
 
 ## Load Balancer
 
@@ -411,7 +415,8 @@ for i in {1..30}; do
 done
 ```
 
-We had a look at the number of requests received by each container. `echo "web1: $(sudo docker logs nginx-<name of the container> | grep 'GET / ' | wc -l) pyyntöä"`  
+We had a look at the number of requests received by each container. `echo "web1: $(sudo docker logs nginx-<name of the container> | grep 'GET / ' | wc -l) pyyntöä"` 
+
 ![kuva17](./img/kuva17.png)  
 ![kuva18](./img/kuva18.png)  
 ![kuva19](./img/kuva19.png)  
@@ -440,7 +445,7 @@ Manandhar, G. 2024. How to use Nginx with Docker Compose effectively with exampl
 
 TechWorld with Nana. Full NGINX Tutorial - Demo Project with Node.js, Docker. URL: https://www.youtube.com/watch?v=q8OleYuqntY&t=3980s. Accessed: 25.11.2025 
 
-*ChatGPT and Gemini LLMs were utilized to finetune commenting on the provision and configuration files and to draw diagrams. LLMs were utilized to produce the html web sites. LLMs were also utilized to enhance translations from Finnish to English*
+*ChatGPT and Gemini LLMs were utilized to finetune commenting on the provision and configuration files and to draw diagrams. LLMs were utilized to produce the html web sites. LLMs were also utilized to enhance translations from Finnish to English.*
 
 
 
