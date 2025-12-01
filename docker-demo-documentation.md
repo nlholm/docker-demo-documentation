@@ -443,4 +443,4 @@ Manandhar, G. 2024. How to use Nginx with Docker Compose effectively with exampl
 
 TechWorld with Nana. Full NGINX Tutorial - Demo Project with Node.js, Docker. URL: https://www.youtube.com/watch?v=q8OleYuqntY&t=3980s. Accessed: 25.11.2025 
 
-*ChatGPT and Gemini LLMs were utilized to finetune commenting on the provision and configuration files and to draw diagrams. LLMs were utilized to produce the html web sites. LLMs were also utilized to enhance translations from Finnish to English.*
+*ChatGPT and Gemini LLMs were utilized to finetune commenting on the provision and configuration files and to draw diagrams. LLMs were utilized to produce the html websites. LLMs were also utilized to enhance translations from Finnish to English.*
