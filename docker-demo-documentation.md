@@ -107,7 +107,7 @@ We gave the command `sudo docker run hello-world` and it yielded an answer. Our 
 
 We started the following phase of our project by installing Docker on our master. We had already automated the installation of Docker so we could run the salt command locally. `sudo salt-call --local state.apply docker` and now we had Docker in our master.  
 
-Next we created a folder in our home directory for the docker compose file so that we could set up multiple containers (nginx-demo). In the same folder, we created a subfolder for the content of our wbsite (site). The subfolfer consists of our index.html, styles.css and a images subfolder. By running the command `mkdir -p /home/vagrant/nginx-demo/site/images` we were able to create all the folders at once (note -p for the full path).
+Next we created a folder in our home directory for the docker compose file so that we could set up multiple containers (nginx-demo). In the same folder, we created a subfolder for the content of our website (site). The subfolder consists of our index.html, styles.css and an images subfolder. By running the command `mkdir -p /home/vagrant/nginx-demo/site/images` we were able to create all the folders at once (note -p for the full path).
 
 ![kuva4](./img/kuva4.png)  
 
