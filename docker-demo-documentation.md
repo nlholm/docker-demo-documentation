@@ -10,7 +10,7 @@ Throughout this process, we progressively added comments to our provision and co
 
 We each worked approximately 20 hours on the project during the week of 24 - 30 November, 2025. 
 
-# Installing Docker in Debian Bookworm64
+# Installing Docker on Debian Bookworm64
 
 First, we installed Docker manually on a clean Debian Bookworm64 virtual machine running in Vagrant. The environment came pre-installed with wget, curl, gnupg2, micro, and the Salt Master. We also added bash-completion to the VM. 
 
@@ -38,7 +38,7 @@ We tried `sudo docker run hello-world`. The command downloads a test image, runs
 
 ## Automating Docker with Salt
 
-We started automating Docker installation with Salt by creating a directory with path:/srv/salt/docker/ by giving the command `sudo mkdir -p /srv/salt/docker`. We also created a init.sls file inside of the directory (docker module).  
+We started automating Docker installation with Salt by creating a directory with path:/srv/salt/docker/ by giving the command `sudo mkdir -p /srv/salt/docker`. We also created an init.sls file inside of the directory (docker module).  
 
 Version 1:
 
@@ -105,7 +105,7 @@ We tried the command `sudo docker run hello-world` and it gave an answer. Our in
 
 # Serving Static Website in an Nginx Container
 
-We started the following phase of our project by installing Docker in our master. We had already automated the installation of Docker so we could run the salt command locally. `sudo salt-call --local state.apply docker` and now we had Docker in our master.  
+We started the following phase of our project by installing Docker on our master. We had already automated the installation of Docker so we could run the salt command locally. `sudo salt-call --local state.apply docker` and now we had Docker in our master.  
 
 Next we created a folder in our home directory for the docker compose file so we could set up multiple containers. We also included our index.html, styles.css and images subfolder in that directory. We ran the command `mkdir -p /home/vagrant/nginx-demo/site/images` (note -p for the full path).  
 
@@ -143,7 +143,7 @@ services:
 
 ![kuva4](./img/kuva4.png)  
 
-We added our depencies to the webpage.  
+We added our dependencies to the webpage.  
 
 Now we had completed our nginx-demo directory and it was time to test it. We ran this command in the nginx-demo directory: `sudo docker compose up -d`.  
 
@@ -159,7 +159,7 @@ We started automating the Nginx web service by creating a new directory nginx-we
 
 ![kuva6](./img/kuva6.png)  
 
-Then we created a init.sls file inside the  nginx-web module.  
+Then we created an init.sls file inside the  nginx-web module.  
 
 ```
 /home/vagrant/nginx-demo:
@@ -207,7 +207,7 @@ After adding a top.sls file into our /srv/salt/ path, we tried to run our two mo
 
 ![kuva8](./img/kuva8.png)  
 
-The Highstate was applied successfully. We run the command twice and got a "succeeded: 11 (changed=0)" message, so our environment was idempotent, as intended. 
+The Highstate was applied successfully. We ran the command twice and got a "succeeded: 11 (changed=0)" message, so our environment was idempotent, as intended. 
 
 ![kuva9](./img/kuva9.png)  
 
@@ -217,7 +217,7 @@ We logged in to our minion and saw that we had a webpage available at localhost:
 
 In the final stage of our project, we further utilized Nginx and installed it as a reverse proxy and load balancer that serves our three backend web servers that run in Docker containers.  
 
-Once again, we started the installation without automation first. We ran  `sudo apt-get update` , `sudo apt-install nginx` on the master. 
+Once again, we started the installation without automation first. We ran  `sudo apt-get update` , `sudo apt install nginx` on the master. 
 
 After installation we worked on the nginx.conf that was available at /etc/nginx/nginx.conf.
 
@@ -262,7 +262,7 @@ We put in place the following configuration:
 1. Worker processes are set to one, meaning Nginx uses a single operating system process to handle all incoming connections.
 2. Upstream acts as load balancer. Default is round robin, so it will pick one server at a time to send the request to.
 3. Location acts as reverse proxy. It will get the request from the client and forward it to our servers.
-4. Nginx listens in port 80 and serves the localhost address.
+4. Nginx listens on port 80 and serves the localhost address.
 
 ## Testing
 
@@ -272,7 +272,7 @@ First we shut down our containers with the command `sudo docker compose down` an
 
 Localhost answered with the desired webpage in every port. `curl localhost` also delivered the same page, so the reverse proxy seemed to be working.  
 
-Next, we tested how the load balancer was coming together.  
+Next, we verified the load balancer configuration.  
 
 We ran 30 HTTP requests to Nginx:  
 
@@ -296,7 +296,7 @@ As we can see, each container (web server) handled 10 requests. Load balancing w
 
 ## Automating Nginx Proxy and Load Balancer with Salt
 
-We created a new Salt module called nginx-proxy on the master, srv/salt/nginx-proxy. We created a init.sls file in the module: 
+We created a new Salt module called nginx-proxy on the master, srv/salt/nginx-proxy. We created an init.sls file in the module: 
 
 ```
 nginx_pkg:
@@ -324,7 +324,7 @@ Now we were ready to test the Highstate by running `sudo salt 'minion1' state.ap
 
 ![kuva20](./img/kuva20.png)
 
-Success: we installed the Nginx load balancer on the minion, to handle traffic into the three Nginx web servers running in Docker containers, also on the minion (the print screen represents a situation after running the state more than once).
+Success: we installed the Nginx load balancer on the minion, to handle traffic into the three Nginx web servers running in Docker containers, also on the minion (the screnshot represents a situation after running the state more than once).
 
 We stored our work into our remote project repository, under the salt folder there. https://github.com/nlholm/docker-demo/tree/main/salt
 
@@ -338,7 +338,7 @@ State modules as shown on the /srv/salt path of the master.
 
 # Testing the Project as a Whole
 
-We started testing the ready(ish) architecture by provisioning a clean Vagrant environment. On the host, we cd'ed to the project folder that contains the Vagrantfile. We ran `vagrant up` , and, once the environment was provisioned, we SSH'ed into the master, `vagrant ssh master`. 
+We started testing the finalized architecture by provisioning a clean Vagrant environment. On the host, we navigated to the project folder that contains the Vagrantfile. We ran `vagrant up` , and, once the environment was provisioned, we connected via SSH to the master, `vagrant ssh master`. 
 
 We cloned the project repository onto the master. `git clone https://github.com/nlholm/docker-demo.git`.  
 
@@ -346,13 +346,13 @@ We created a folder for Salt. `sudo mkdir -p /srv/salt`.
 
 We copied the cloned modules into /srv/salt/. `sudo cp -r docker-demo/salt/* /srv/salt/`.
 
-(Of note that the project Vagrantfile was since updated to include a symlink from the hosts's Salt project folder to the master's; there is no need anymore to clone the project repo into the master (only to the host); to create a folder for Salt; or to copy content into it. The process is commented in the Vagrantfile.).
+(Note: The Vagrantfile has sive been updated to automatically symlink the Salt project folder from the host to the master. Therefore, manually cloning the repository or copying files to the master is no longer necessary, as described in the Vagrantfile comments.)
 
 We ran the Highstate (top file) on the master: `sudo salt 'minion1' state.apply`.   
 
 ![kuva12](./img/kuva12.png) 
 
-All good so far! 14 states succeeded, 11 changes.´
+All good so far! 14 states succeeded, 11 changes.
 
 We signed off the master and onto the minion.
 
@@ -375,7 +375,7 @@ Both services, Docker and Nginx were active and running.
 
 ![kuva14](./img/kuva14.png)  
 
-All three Nginx containers were running the same web server and listening in port 80 within their container. 
+All three Nginx containers were running the same web server and listening on port 80 within their container. 
 
 In Docker, the internal ports of containers can be identical (e.g., port 80). However, at the Docker host level (the minion), these ports must be differentiated to avoid conflicts.
 
@@ -397,7 +397,7 @@ The end result is that a single Nginx proxy (listening on port 80) successfully 
 
 ![kuva15](./img/kuva15.png)  
 
-`curl` was succesful on the localhost, from which we can conclude that the proxy works as intended.
+`curl` was successful on the localhost, from which we can conclude that the proxy works as intended.
 
 To add a visual effect on our demo, we updated the Vagrantfile to include port forwarding. By forwarding Host 8080 -> Guest Load Balancer 80, we are allowed to access the load balancer from a host browser at http://localhost:8080. `minion.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true`. 
 
@@ -446,7 +446,3 @@ Manandhar, G. 2024. How to use Nginx with Docker Compose effectively with exampl
 TechWorld with Nana. Full NGINX Tutorial - Demo Project with Node.js, Docker. URL: https://www.youtube.com/watch?v=q8OleYuqntY&t=3980s. Accessed: 25.11.2025 
 
 *ChatGPT and Gemini LLMs were utilized to finetune commenting on the provision and configuration files and to draw diagrams. LLMs were utilized to produce the html web sites. LLMs were also utilized to enhance translations from Finnish to English.*
-
-
-
-
