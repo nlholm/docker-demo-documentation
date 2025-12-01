@@ -111,7 +111,7 @@ Next we created a folder in our home directory for the docker compose file so th
 
 ![kuva4](./img/kuva4.png)  
 
-Then we created the docker-compose.yml file that sets up three nginx web servers offering a single website.  
+Then we created the docker-compose.yml file that sets up three nginx web servers offering a single website. The below code block represents a Version 2 of the file, where the web server containers are already mapped to ports 8081-8083. At testing stage, 8080  was used, as you will see in screenshots that follow.  
 
 ```
 services:
@@ -145,7 +145,7 @@ services:
 
 Now we had completed our nginx-demo directory and it was time to test it. We ran this command in the nginx-demo directory: `sudo docker compose up -d`.  
 
-After that we ran the command `sudo docker ps` to see which containers were running and the command `curl localhost:8080` to see if our webpage was up and running.  
+After that we ran the command `sudo docker ps` to see which containers were running and the command `curl localhost:8080` to see if our webpage was up and running.
 
 ![kuva5](./img/kuva5.png)  
 
@@ -197,7 +197,7 @@ nginx_web_up:
 
 ![kuva7](./img/kuva7.png)  
 
-`sudo salt-call --local state.apply nginx-web` and the automated version of the Nginx web service was running on the master!  
+`sudo salt-call --local state.apply nginx-web` and the automated version of the Nginx web service was running on the master!
 
 ## Testing
 
